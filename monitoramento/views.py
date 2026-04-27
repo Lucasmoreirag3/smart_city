@@ -6,11 +6,15 @@ from datetime import timedelta
 import pandas as pd
 from .models import Sensores, Historicos, Ambientes, Locais, Responsaveis, Microcontroladores
 from .serializers import * # Importa todos os seus serializers
+from django_filters.rest_framework import DjangoFilterBackend
+from .filters import HistoricoFilter, SensorFilter
 
 class SensoresViewSet(viewsets.ModelViewSet):
     queryset = Sensores.objects.all()
     serializer_class = SensoresSerializer
-    permission_classes = [permissions.IsAuthenticated]  
+    permission_classes = [permissions.IsAuthenticated]
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = SensorFilter
 
     @action(detail=False, methods=['post'])
     def importar_planilha(self, request):
@@ -29,7 +33,7 @@ class HistoricosViewSet(viewsets.ModelViewSet):
     queryset = Historicos.objects.all()
     serializer_class = HistoricosSerializer
     permission_classes = [permissions.IsAuthenticated] 
-    filterset_fields = ['sensor', 'sensor__mic__ambiente__local'] 
+    filter_backends = [DjangoFilterBackend]
     def create(self, request, *args, **kwargs):
         sensor_id = request.data.get('sensor')
         sensor = Sensores.objects.get(id=sensor_id)
@@ -79,3 +83,5 @@ class MicrocontroladoresViewSet(viewsets.ModelViewSet):
     queryset = Microcontroladores.objects.all()
     serializer_class = MicrocontroladoresSerializer
     permission_classes = [permissions.IsAuthenticated]
+
+    
